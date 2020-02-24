@@ -14,7 +14,7 @@ TagManager:
   - 
   - 
   - Car
-  - 
+  - RCC
   - 
   - 
   - 
@@ -40,4 +40,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: RCC
+    uniqueID: 2073951891
     locked: 0
