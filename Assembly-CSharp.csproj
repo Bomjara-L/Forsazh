@@ -165,7 +165,9 @@
     <Compile Include="Assets\scripts\asets\EasySuspension.cs" />
     <Compile Include="Assets\scripts\asets\GraphOverlay.cs" />
     <Compile Include="Assets\scripts\asets\WheelDrive.cs" />
+    <Compile Include="Assets\scripts\chekPoints.cs" />
     <Compile Include="Assets\scripts\hp.cs" />
+    <Compile Include="Assets\scripts\laps.cs" />
     <Compile Include="Assets\scripts\menu.cs" />
     <Compile Include="Assets\scripts\win.cs" />
     <None Include="Assets\Samples\Terrain Tools\0.1.0-preview\Terrain Assets\ThirdPartyNotices.txt" />
