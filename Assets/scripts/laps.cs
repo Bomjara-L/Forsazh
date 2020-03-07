@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class laps : MonoBehaviour
 {
@@ -10,6 +11,9 @@ public class laps : MonoBehaviour
     public int no_laps;
     public int curr_lap;
     public int lap_count;
+    public Text curr_check_text;
+    public Text curr_lap_text;
+
     private void Start()
     {
         lap_count = 3;
@@ -30,9 +34,22 @@ public class laps : MonoBehaviour
 
         if (lap_count < curr_lap)
         {
-            SceneManager.LoadScene(3);
+            if (no_checks < 15)
+            {
+                SceneManager.LoadScene(3);
+            }
+            else SceneManager.LoadScene(4);
+
         }
-    }
+
+
+
+        curr_lap_text.text = curr_lap.ToString();
+        
+        curr_check_text.text = curr_check.ToString();
+    
+
+}
 
     private void OnTriggerEnter(Collider check_col)
     {

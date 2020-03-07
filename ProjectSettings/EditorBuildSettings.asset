@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/track 2.unity
     guid: aae284c2ba4d26a48bf21ee3b32e8d85
+  - enabled: 1
+    path: Assets/Win.unity
+    guid: b748fad3fca74e14c85759fc42ff08e9
   m_configObjects: {}
