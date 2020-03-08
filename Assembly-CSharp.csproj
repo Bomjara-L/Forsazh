@@ -156,6 +156,7 @@
     <Compile Include="Assets\RealisticCarControllerV3\Standard Assets\Utility\TimedObjectDestructor.cs" />
     <Compile Include="Assets\RealisticCarControllerV3\Standard Assets\Utility\WaypointCircuit.cs" />
     <Compile Include="Assets\RealisticCarControllerV3\Standard Assets\Utility\WaypointProgressTracker.cs" />
+    <Compile Include="Assets\scripts\CamControl.cs" />
     <Compile Include="Assets\scripts\DeadZone.cs" />
     <Compile Include="Assets\scripts\Finish.cs" />
     <Compile Include="Assets\scripts\Respawn.cs" />
