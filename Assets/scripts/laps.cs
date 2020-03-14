@@ -34,7 +34,7 @@ public class laps : MonoBehaviour
 
         if (lap_count < curr_lap)
         {
-            if (no_checks < 15)
+            if (no_checks < 13)
             {
                 SceneManager.LoadScene(3);
             }
