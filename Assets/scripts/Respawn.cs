@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class Respawn : MonoBehaviour
 {
-    public Transform Car;
+    public Rigidbody Car;
     public Transform Spawn;
 
     private void Update()
@@ -15,6 +15,8 @@ public class Respawn : MonoBehaviour
         {
             Car.position = Spawn.position;
             Car.rotation = Spawn.rotation;
+            Car.velocity = Vector3.zero;
+            
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))

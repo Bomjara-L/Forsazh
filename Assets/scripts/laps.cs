@@ -13,11 +13,13 @@ public class laps : MonoBehaviour
     public int lap_count;
     public Text curr_check_text;
     public Text curr_lap_text;
-
+    private Transform points_cont;
     private void Start()
     {
+        
         lap_count = 3;
-        no_checks = GameObject.Find("Checkpoints").transform.childCount;
+        points_cont = GameObject.Find("Checkpoints").transform;
+        no_checks = points_cont.childCount;
         curr_check = 1;
         no_laps = 3;
         curr_lap = 1;
@@ -30,6 +32,10 @@ public class laps : MonoBehaviour
         {
             curr_lap++;
             curr_check = 1;
+            for (int i = 0; i < no_checks; i++)
+            {
+                points_cont.GetChild(i).gameObject.SetActive(true);
+            } 
         }
 
         if (lap_count < curr_lap)
@@ -40,9 +46,7 @@ public class laps : MonoBehaviour
             }
             else SceneManager.LoadScene(4);
 
-        }
-
-
+        }      
 
         curr_lap_text.text = curr_lap.ToString();
         
@@ -51,11 +55,13 @@ public class laps : MonoBehaviour
 
 }
 
-    private void OnTriggerEnter(Collider check_col)
+    void OnTriggerEnter(Collider check_col)
     {
+        
         if (check_col.name == curr_check.ToString())
         {
             curr_check++;
+            check_col.gameObject.SetActive(false);
         }
     }
 
