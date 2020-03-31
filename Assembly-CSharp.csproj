@@ -159,8 +159,10 @@
     <Compile Include="Assets\scripts\CamControl.cs" />
     <Compile Include="Assets\scripts\DeadZone.cs" />
     <Compile Include="Assets\scripts\Finish.cs" />
+    <Compile Include="Assets\scripts\MultiplayerMenu.cs" />
     <Compile Include="Assets\scripts\Respawn.cs" />
     <Compile Include="Assets\scripts\Rocks.cs" />
+    <Compile Include="Assets\scripts\Server.cs" />
     <Compile Include="Assets\scripts\Timer.cs" />
     <Compile Include="Assets\scripts\asets\CarSwitcher.cs" />
     <Compile Include="Assets\scripts\asets\DriftCamera.cs" />
@@ -171,6 +173,7 @@
     <Compile Include="Assets\scripts\laps.cs" />
     <Compile Include="Assets\scripts\menu.cs" />
     <Compile Include="Assets\scripts\win.cs" />
+    <Compile Include="Assets\source\ClientConnection.cs" />
     <None Include="Assets\Samples\Terrain Tools\0.1.0-preview\Terrain Assets\ThirdPartyNotices.txt" />
     <None Include="Assets\RealisticCarControllerV3\Standard Assets\Projectors\Shaders\ProjectorLight.shader" />
     <None Include="Assets\RealisticCarControllerV3\Standard Assets\Projectors\Shaders\ProjectorMultiply.shader" />
