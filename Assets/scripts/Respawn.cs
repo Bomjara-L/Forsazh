@@ -19,6 +19,14 @@ public class Respawn : MonoBehaviour
             
         }
 
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            if (Time.timeScale != .2f)
+                Time.timeScale = .2f;
+            else
+                Time.timeScale = 1f;
+        }
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             SceneManager.LoadScene(0);
