@@ -22,7 +22,7 @@ public class Server : MonoBehaviour
     public int maxSlots = 32;
 
     public GameObject playerVehicle;
-    public Vector3 defaultPosition = new Vector3(821.7925f, 1.410624f, 216.4603f);
+    public Vector3 defaultPosition;
 
     List<ClientConnection> clientList;
 
@@ -61,8 +61,6 @@ public class Server : MonoBehaviour
                 string line = _client.reader.ReadLine();
                 string response = null;
                 string address = _client.client.Client.RemoteEndPoint.ToString();
-                //while ((line = _client.reader.ReadLine()) != null)
-                //{
                 Debug.LogFormat("Received line from {0}: {1}", address, line);
                 string[] command = line.Split(':');
                 string cmd = command[0].ToUpperInvariant();
@@ -121,7 +119,6 @@ public class Server : MonoBehaviour
                             Debug.LogFormat("Get Wrong Command From Client: {0}", cmd);
                             break;
                     }
-                    //}
                 }
             }
             server.BeginAcceptTcpClient(HandleConnection, server);
