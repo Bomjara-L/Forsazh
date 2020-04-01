@@ -35,13 +35,6 @@ public class Client : MonoBehaviour
 			string line = reader.ReadLine();
 			string[] command = line.Split(':');
 			string cmd = command[0].ToUpperInvariant();
-			/*string argumentsLine = command.Length > 1 ? line.Substring(command[0].Length + 1) : null;
-			string[] arguments = argumentsLine.Split(':');
-			if (arguments != null && arguments.Length == 0)
-			{
-				arguments = null;
-			}
-			*/
 			switch (cmd)
 			{
 				case "GOTOME":
@@ -59,8 +52,12 @@ public class Client : MonoBehaviour
 					otherPlayer.name = command[1];
 					break;
 				case "POS":
+					GameObject pl = GameObject.Find(command[1]);
+					pl.transform.position = new Vector3(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]));
 					break;
 				case "ROT":
+					GameObject plRot = GameObject.Find(command[1]);
+					plRot.transform.rotation = new Quaternion(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]), 0f);
 					break;
 				default:
 					Debug.LogErrorFormat("Client Get Wrong Command: {0}", cmd);

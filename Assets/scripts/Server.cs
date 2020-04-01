@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 using UnityEngine;
 using Source;
+using System.Threading.Tasks;
 
 public class Server : MonoBehaviour
 {
@@ -75,6 +76,7 @@ public class Server : MonoBehaviour
                             break;
                         case "LOADED":
                             _client.vehicle = SpawnPlayerVehicle();
+                            _client.spawned = true;
                             foreach (ClientConnection _cl in clientList)
                             {
                                 if (_cl != _client)
@@ -124,6 +126,8 @@ public class Server : MonoBehaviour
             server.BeginAcceptTcpClient(HandleConnection, server);
         }
     }
+
+    
 
     public void HandleConnection(IAsyncResult result)
     {
