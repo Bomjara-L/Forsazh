@@ -4,10 +4,11 @@ using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 public class MultiplayerMenu : MonoBehaviour
 {
-    TcpClient client;
+    private TcpClient client;
     // Start is called before the first frame update
     void Start()
     {

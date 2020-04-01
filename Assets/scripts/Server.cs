@@ -13,36 +13,122 @@ public class Server : MonoBehaviour
     private TcpListener server;
     private IPAddress ip;
 
+    private int id = 1;
+
+    private Client client;
+    private bool isServer = false;
+
     public int port = 8888;
     public int maxSlots = 32;
 
     public GameObject playerVehicle;
-    public Vector3 defaultPosition;
+    public Vector3 defaultPosition = new Vector3(821.7925f, 1.410624f, 216.4603f);
 
     List<ClientConnection> clientList;
 
     // Start is called before the first frame update
     void Start()
     {
+        client = GameObject.Find("Client").gameObject.GetComponent<Client>();
         //ip = GetAddress();
-        ip = IPAddress.Any;
-        clientList = new List<ClientConnection>(maxSlots);
-        server = new TcpListener(ip, port);
-        server.Start();
-        Debug.LogFormat("Starting server at {0}:{1}", ip, port);
+        if (!client.client.Connected)
+        {
+            ip = IPAddress.Any;
+            clientList = new List<ClientConnection>(maxSlots);
+            server = new TcpListener(ip, port);
+            server.Start();
+            isServer = true;
+            Debug.LogFormat("Starting server at {0}:{1}", ip, port);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        foreach (ClientConnection _client in clientList)
+        if (isServer)
         {
-
+            foreach (ClientConnection _client in clientList)
+            {
+                if (!_client.client.Connected || _client.client == null)
+                {
+                    clientList.Remove(_client);
+                    continue;
+                }
+                if (!_client.stream.DataAvailable)
+                {
+                    continue;
+                }
+                string line = _client.reader.ReadLine();
+                string response = null;
+                string address = _client.client.Client.RemoteEndPoint.ToString();
+                //while ((line = _client.reader.ReadLine()) != null)
+                //{
+                Debug.LogFormat("Received line from {0}: {1}", address, line);
+                string[] command = line.Split(':');
+                string cmd = command[0].ToUpperInvariant();
+                if (response == null)
+                {
+                    switch (cmd)
+                    {
+                        case "CONNECTPLEASE":
+                            _client.nickname = command[1];
+                            string connectResponse = string.Format("GOTOME:{0}", _client.id);
+                            _client.writer.WriteLine(connectResponse);
+                            break;
+                        case "LOADED":
+                            _client.vehicle = SpawnPlayerVehicle();
+                            foreach (ClientConnection _cl in clientList)
+                            {
+                                if (_cl != _client)
+                                {
+                                    string text = string.Format("NEWPLAYERSPAWN:{0}:{1}", _client.id, _client.nickname);
+                                    _cl.writer.WriteLine(text);
+                                    if (_cl.spawned)
+                                    {
+                                        text = string.Format("EXISTSPLAYER:{0}:{1}", _cl.id, _cl.nickname);
+                                        _client.writer.WriteLine(text);
+                                    }
+                                }
+                            }
+                            break;
+                        case "MYPOS":
+                            _client.position = new Vector3(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]));
+                            _client.vehicle.transform.position = _client.position;
+                            Debug.LogFormat("Received {0} ID position: {1}", _client.id, _client.position.ToString());
+                            foreach (ClientConnection _cl in clientList)
+                            {
+                                if (_cl != _client && _cl.position != null)
+                                {
+                                    string text = string.Format("POS:{0}:{1}:{2}:{3}", _cl.id, _cl.position.x, _cl.position.y, _cl.position.z);
+                                    _client.writer.WriteLine(text);
+                                }
+                            }
+                            break;
+                        case "MYROT":
+                            _client.rotation = new Quaternion(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]), 0f);
+                            _client.vehicle.transform.rotation = _client.rotation;
+                            Debug.LogFormat("Received {0} ID rotation: {1}", _client.id, _client.rotation.ToString());
+                            foreach (ClientConnection _cl in clientList)
+                            {
+                                if (_cl != _client && _cl.rotation != null)
+                                {
+                                    string text = string.Format("ROT:{0}:{1}:{2}:{3}", _cl.id, _cl.rotation.x, _cl.rotation.y, _cl.rotation.z);
+                                    _client.writer.WriteLine(text);
+                                }
+                            }
+                            break;
+                        default:
+                            Debug.LogFormat("Get Wrong Command From Client: {0}", cmd);
+                            break;
+                    }
+                    //}
+                }
+            }
+            server.BeginAcceptTcpClient(HandleConnection, server);
         }
-        server.BeginAcceptTcpClient(HandleConnection, server);
     }
 
-    private void HandleConnection(IAsyncResult result)
+    public void HandleConnection(IAsyncResult result)
     {
         TcpClient client = server.EndAcceptTcpClient(result);
         Debug.Log("Player connection...");
@@ -52,20 +138,25 @@ public class Server : MonoBehaviour
             ClientConnection newClient = new ClientConnection()
             {
                 client = client,
-                stream = ns
+                stream = ns,
+                reader = new StreamReader(ns),
+                writer = new StreamWriter(ns),
+                id = id
             };
+            newClient.writer.AutoFlush = true;
             clientList.Add(newClient);
-            SpawnPlayerVehicle();
+            id++;
             Debug.Log("Player connected!");
         }
     }
 
-    private void SpawnPlayerVehicle()
+    public GameObject SpawnPlayerVehicle()
     {
-        GameObject newVehicle = Instantiate(playerVehicle, defaultPosition, Quaternion.identity);
-        newVehicle.transform.position = defaultPosition;
+        GameObject newVehicle = Instantiate(playerVehicle, defaultPosition, Quaternion.identity) as GameObject;
+        return newVehicle;
     }
 
+    /*
     private IPAddress GetAddress()
     {
         string address;
@@ -82,4 +173,5 @@ public class Server : MonoBehaviour
             return IPAddress.Parse(address);
         }
     }
+    */
 }
