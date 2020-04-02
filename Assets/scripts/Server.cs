@@ -11,153 +11,170 @@ using System.Threading.Tasks;
 
 public class Server : MonoBehaviour
 {
-    private TcpListener server;
-    private IPAddress ip;
+	private TcpListener server;
+	private IPAddress ip;
 
-    private int id = 1;
+	private int id = 1;
 
-    private Client client;
-    private bool isServer = false;
+	private Client client;
+	private bool isServer = false;
 
-    public int port = 8888;
-    public int maxSlots = 32;
+	public int port = 8888;
+	public int maxSlots = 32;
 
-    public GameObject playerVehicle;
-    public Vector3 defaultPosition;
+	public GameObject playerVehicle;
+	public GameObject hostVehicle;
+	public Vector3 defaultPosition;
 
-    List<ClientConnection> clientList;
+	List<ClientConnection> clientList;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        client = GameObject.Find("Client").gameObject.GetComponent<Client>();
-        //ip = GetAddress();
-        if (!client.client.Connected)
-        {
-            ip = IPAddress.Any;
-            clientList = new List<ClientConnection>(maxSlots);
-            server = new TcpListener(ip, port);
-            server.Start();
-            isServer = true;
-            Debug.LogFormat("Starting server at {0}:{1}", ip, port);
-        }
-    }
+	// Start is called before the first frame update
+	void Start()
+	{
+		client = GameObject.Find("Client").gameObject.GetComponent<Client>();
+		//ip = GetAddress();
+		if (!client.client.Connected)
+		{
+			ip = IPAddress.Any;
+			clientList = new List<ClientConnection>(maxSlots);
+			ClientConnection host = new ClientConnection
+			{
+				id = 9999,
+				spawned = true,
+				vehicle = hostVehicle,
+				nickname = "HOST"
+			};
+			clientList.Add(host);
+			server = new TcpListener(ip, port);
+			server.Start();
+			isServer = true;
+			Debug.LogFormat("Starting server at {0}:{1}", ip, port);
+		}
+	}
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (isServer)
-        {
-            foreach (ClientConnection _client in clientList)
-            {
-                if (!_client.client.Connected || _client.client == null)
-                {
-                    clientList.Remove(_client);
-                    continue;
-                }
-                if (!_client.stream.DataAvailable)
-                {
-                    continue;
-                }
-                string line = _client.reader.ReadLine();
-                string response = null;
-                string address = _client.client.Client.RemoteEndPoint.ToString();
-                Debug.LogFormat("Received line from {0}: {1}", address, line);
-                string[] command = line.Split(':');
-                string cmd = command[0].ToUpperInvariant();
-                if (response == null)
-                {
-                    switch (cmd)
-                    {
-                        case "CONNECTPLEASE":
-                            _client.nickname = command[1];
-                            string connectResponse = string.Format("GOTOME:{0}", _client.id);
-                            _client.writer.WriteLine(connectResponse);
-                            break;
-                        case "LOADED":
-                            _client.vehicle = SpawnPlayerVehicle();
-                            _client.spawned = true;
-                            foreach (ClientConnection _cl in clientList)
-                            {
-                                if (_cl != _client)
-                                {
-                                    string text = string.Format("NEWPLAYERSPAWN:{0}:{1}", _client.id, _client.nickname);
-                                    _cl.writer.WriteLine(text);
-                                    if (_cl.spawned)
-                                    {
-                                        text = string.Format("EXISTSPLAYER:{0}:{1}", _cl.id, _cl.nickname);
-                                        _client.writer.WriteLine(text);
-                                    }
-                                }
-                            }
-                            break;
-                        case "MYPOS":
-                            _client.position = new Vector3(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]));
-                            _client.vehicle.transform.position = _client.position;
-                            Debug.LogFormat("Received {0} ID position: {1}", _client.id, _client.position.ToString());
-                            foreach (ClientConnection _cl in clientList)
-                            {
-                                if (_cl != _client && _cl.position != null)
-                                {
-                                    string text = string.Format("POS:{0}:{1}:{2}:{3}", _cl.id, _cl.position.x, _cl.position.y, _cl.position.z);
-                                    _client.writer.WriteLine(text);
-                                }
-                            }
-                            break;
-                        case "MYROT":
-                            _client.rotation = new Quaternion(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]), 0f);
-                            _client.vehicle.transform.rotation = _client.rotation;
-                            Debug.LogFormat("Received {0} ID rotation: {1}", _client.id, _client.rotation.ToString());
-                            foreach (ClientConnection _cl in clientList)
-                            {
-                                if (_cl != _client && _cl.rotation != null)
-                                {
-                                    string text = string.Format("ROT:{0}:{1}:{2}:{3}", _cl.id, _cl.rotation.x, _cl.rotation.y, _cl.rotation.z);
-                                    _client.writer.WriteLine(text);
-                                }
-                            }
-                            break;
-                        default:
-                            Debug.LogFormat("Get Wrong Command From Client: {0}", cmd);
-                            break;
-                    }
-                }
-            }
-            server.BeginAcceptTcpClient(HandleConnection, server);
-        }
-    }
+	// Update is called once per frame
+	void Update()
+	{
+		if (isServer)
+		{
+			foreach (ClientConnection _client in clientList)
+			{
+				if (_client.id != 9999) // Check that this player is not the host
+				{
+					if (_client.spawned && _client.vehicle == null) // Check that player is spawned and spawn him at the host if they not spawned
+					{
+						_client.vehicle = SpawnPlayerVehicle();
+					}
+					if (_client.spawned) // update player vehicle position in the game if they spawned
+					{
+						_client.vehicle.transform.position = _client.position;
+						_client.vehicle.transform.rotation = _client.rotation;
+					}
+				}
+			}
+			server.BeginAcceptTcpClient(HandleConnection, server);
+		}
+	}
 
-    
 
-    public void HandleConnection(IAsyncResult result)
-    {
-        TcpClient client = server.EndAcceptTcpClient(result);
-        Debug.Log("Player connection...");
-        NetworkStream ns = client.GetStream();
-        if (clientList.Count < clientList.Capacity)
-        {
-            ClientConnection newClient = new ClientConnection()
-            {
-                client = client,
-                stream = ns,
-                reader = new StreamReader(ns),
-                writer = new StreamWriter(ns),
-                id = id
-            };
-            newClient.writer.AutoFlush = true;
-            clientList.Add(newClient);
-            id++;
-            Debug.Log("Player connected!");
-        }
-    }
 
-    public GameObject SpawnPlayerVehicle()
-    {
-        GameObject newVehicle = Instantiate(playerVehicle, defaultPosition, Quaternion.identity) as GameObject;
-        return newVehicle;
-    }
+	public void HandleConnection(IAsyncResult result)
+	{
+		TcpClient client = server.EndAcceptTcpClient(result);
+		Debug.Log("Player connection...");
+		NetworkStream ns = client.GetStream();
+		if (clientList.Count < clientList.Capacity)
+		{
+			ClientConnection newClient = new ClientConnection()
+			{
+				client = client,
+				stream = ns,
+				reader = new StreamReader(ns),
+				writer = new StreamWriter(ns),
+				id = id
+			};
+			newClient.writer.AutoFlush = true;
+			clientList.Add(newClient);
+			id++;
+			Debug.Log("Player connected!");
 
-    /*
+			while (true)
+			{
+				if (newClient.stream.DataAvailable)
+				{
+					ClientConnection _client = newClient;
+					string line = _client.reader.ReadLine();
+					string response = null;
+					string address = _client.client.Client.RemoteEndPoint.ToString();
+					Debug.LogFormat("Received line from {0}: {1}", address, line);
+					string[] command = line.Split(':');
+					string cmd = command[0].ToUpperInvariant();
+					if (response == null)
+					{
+						switch (cmd)
+						{
+							case "CONNECTPLEASE":
+								_client.nickname = command[1];
+								string connectResponse = string.Format("GOTOME:{0}", _client.id);
+								_client.writer.WriteLine(connectResponse);
+								break;
+							case "LOADED":
+								_client.spawned = true;
+								foreach (ClientConnection _cl in clientList)
+								{
+									if (_cl != _client)
+									{
+										string text = string.Format("NEWPLAYERSPAWN:{0}:{1}", _client.id, _client.nickname);
+										_cl.writer.WriteLine(text);
+										if (_cl.spawned)
+										{
+											text = string.Format("EXISTSPLAYER:{0}:{1}", _cl.id, _cl.nickname);
+											_client.writer.WriteLine(text);
+										}
+									}
+								}
+								break;
+							case "MYPOS":
+								_client.position = new Vector3(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]));
+								Debug.LogFormat("Received {0} ID position: {1}", _client.id, _client.position.ToString());
+								foreach (ClientConnection _cl in clientList)
+								{
+									if (_cl != _client && _cl.position != null)
+									{
+										string text = string.Format("POS:{0}:{1}:{2}:{3}", _cl.id, _cl.position.x, _cl.position.y, _cl.position.z);
+										_client.writer.WriteLine(text);
+									}
+								}
+								break;
+							case "MYROT":
+								_client.rotation = new Quaternion(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]), 0f);
+								Debug.LogFormat("Received {0} ID rotation: {1}", _client.id, _client.rotation.ToString());
+								foreach (ClientConnection _cl in clientList)
+								{
+									if (_cl != _client && _cl.rotation != null)
+									{
+										string text = string.Format("ROT:{0}:{1}:{2}:{3}", _cl.id, _cl.rotation.x, _cl.rotation.y, _cl.rotation.z);
+										_client.writer.WriteLine(text);
+									}
+								}
+								break;
+							default:
+								Debug.LogFormat("Get Wrong Command From Client: {0}", cmd);
+								break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public GameObject SpawnPlayerVehicle()
+	{
+		GameObject newVehicle = Instantiate(playerVehicle, defaultPosition, Quaternion.identity) as GameObject;
+		return newVehicle;
+	}
+
+	/*
     private IPAddress GetAddress()
     {
         string address;
