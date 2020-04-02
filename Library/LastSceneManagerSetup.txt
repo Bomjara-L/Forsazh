@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/track 2.unity
+- path: Assets/garage.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0

@@ -14,10 +14,10 @@ public class laps : MonoBehaviour
     public Text curr_check_text;
     public Text curr_lap_text;
     private Transform points_cont;
+    public Transform resp;
     private void Start()
     {
         
-        lap_count = 3;
         points_cont = GameObject.Find("Checkpoints").transform;
         no_checks = points_cont.childCount;
         curr_check = 1;
@@ -62,6 +62,8 @@ public class laps : MonoBehaviour
         {
             curr_check++;
             check_col.gameObject.SetActive(false);
+            resp.position = check_col.gameObject.transform.position;
+            resp.rotation = check_col.gameObject.transform.rotation;
         }
     }
 

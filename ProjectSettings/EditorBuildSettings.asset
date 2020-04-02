@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Win.unity
     guid: b748fad3fca74e14c85759fc42ff08e9
+  - enabled: 1
+    path: Assets/garage.unity
+    guid: e47b0614f1dead94ab02f7eed059d041
   m_configObjects: {}
