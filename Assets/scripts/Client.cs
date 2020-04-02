@@ -29,7 +29,8 @@ public class Client : MonoBehaviour
 
 	private List<ClientConnection> clientList;
 
-	private Thread NetworkThread;
+	private Thread networkThread;
+	private Thread sendThread;
 
 	// Start is called before the first frame update
 	void Start()
@@ -81,10 +82,11 @@ public class Client : MonoBehaviour
 		server = GameObject.Find("Server").gameObject.GetComponent<Server>();
 		playersObject = GameObject.Find("Players");
 		myVehicle = GameObject.Find("car_5");
-		clientList = new List<ClientConnection>();
+		sendThread = new Thread(new ParameterizedThreadStart(SendTask));
+		sendThread.Start();
 	}
 
-	private void NetworkTask(object obj)
+	private void SendTask(object obj)
 	{
 		while (true)
 		{
@@ -94,8 +96,15 @@ public class Client : MonoBehaviour
 				string rotLine = string.Format("MYROT:{0}:{1}:{2}:{3}", id, myRotation.x, myRotation.y, myRotation.z);
 				writer.WriteLine(posLine);
 				writer.WriteLine(rotLine);
-				Debug.LogFormat("My position: {0}", myPosition.ToString());
 			}
+			Thread.Sleep(20);
+		}
+	}
+
+	private void NetworkTask(object obj)
+	{
+		while (true)
+		{
 			if (stream.DataAvailable)
 			{
 				string line = reader.ReadLine();
@@ -127,11 +136,17 @@ public class Client : MonoBehaviour
 							break;
 						case "POS":
 							ClientConnection cl = clientList.Find(c => c.id == int.Parse(command[1]));
-							cl.position = new Vector3(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]));
+							if (cl != null)
+							{
+								cl.position = new Vector3(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]));
+							}
 							break;
 						case "ROT":
 							ClientConnection clRot = clientList.Find(c => c.id == int.Parse(command[1]));
-							clRot.rotation = new Quaternion(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]), 0f);
+							if (clRot != null)
+							{
+								clRot.rotation = new Quaternion(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]), 0f);
+							}
 							break;
 						default:
 							Debug.LogErrorFormat("Client Get Wrong Command: {0}", cmd);
@@ -139,7 +154,6 @@ public class Client : MonoBehaviour
 					}
 				}
 			}
-			Thread.Sleep(10);
 		}
 	}
 
@@ -157,11 +171,12 @@ public class Client : MonoBehaviour
 			};
 			string connectLine = string.Format("CONNECTPLEASE:{0}", name);
 			writer.WriteLine(connectLine);
-			NetworkThread = new Thread(new ParameterizedThreadStart(NetworkTask))
+			clientList = new List<ClientConnection>();
+			networkThread = new Thread(new ParameterizedThreadStart(NetworkTask))
 			{
 				IsBackground = true
 			};
-			NetworkThread.Start();
+			networkThread.Start();
 		}
 		return client.Connected;
 	}

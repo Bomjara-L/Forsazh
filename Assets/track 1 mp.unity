@@ -415,7 +415,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc3b543d066eec44c8cdc23a67661ff5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 8888
+  port: 1488
   maxSlots: 32
   playerVehicle: {fileID: 2063891764712599300, guid: 2397d2a152e2dcd4d9d8a2240097fc52,
     type: 3}

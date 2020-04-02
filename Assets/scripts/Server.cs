@@ -19,6 +19,8 @@ public class Server : MonoBehaviour
 	private Client client;
 	private bool isServer = false;
 
+	private Thread sendThread;
+
 	public int port = 1488;
 	public int maxSlots = 32;
 
@@ -26,7 +28,7 @@ public class Server : MonoBehaviour
 	public GameObject hostVehicle;
 	public Vector3 defaultPosition;
 
-	List<ClientConnection> clientList;
+	private List<ClientConnection> clientList;
 
 	// Start is called before the first frame update
 	void Start()
@@ -48,6 +50,8 @@ public class Server : MonoBehaviour
 			server = new TcpListener(ip, port);
 			server.Start();
 			isServer = true;
+			sendThread = new Thread(new ParameterizedThreadStart(SendNetworkData));
+			sendThread.Start();
 			Debug.LogFormat("Starting server at {0}:{1}", ip, port);
 		}
 	}
@@ -71,12 +75,47 @@ public class Server : MonoBehaviour
 						_client.vehicle.transform.rotation = _client.rotation;
 					}
 				}
+				else
+				{
+					_client.position = _client.vehicle.transform.position;
+					_client.rotation = _client.vehicle.transform.rotation;
+				}
 			}
 			server.BeginAcceptTcpClient(HandleConnection, server);
 		}
 	}
 
-	private void PlayerNetTask(object obj)
+	private void SendNetworkData(object obj)
+	{
+		while (true)
+		{
+			foreach (ClientConnection client in clientList)
+			{
+				if (client.id != 9999)
+				{
+					if (!client.client.Connected) // Delete player if not connected bolshe
+					{
+						Destroy(client.vehicle);
+						clientList.Remove(client);
+						continue;
+					}
+					foreach (ClientConnection _cl in clientList)
+					{
+						if (_cl != client)
+						{
+							string text = string.Format("POS:{0}:{1}:{2}:{3}", _cl.id, _cl.position.x, _cl.position.y, _cl.position.z);
+							client.writer.WriteLine(text);
+							text = string.Format("ROT:{0}:{1}:{2}:{3}", _cl.id, _cl.rotation.x, _cl.rotation.y, _cl.rotation.z);
+							client.writer.WriteLine(text);
+						}
+					}
+				}
+			}
+			Thread.Sleep(10);
+		}
+	}
+
+	private void ReadNetworkData(object obj)
 	{
 		ClientConnection _client = (ClientConnection)obj;
 		while (true)
@@ -120,26 +159,26 @@ public class Server : MonoBehaviour
 						case "MYPOS":
 							_client.position = new Vector3(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]));
 							Debug.LogFormat("Received {0} ID position: {1}", _client.id, _client.position.ToString());
-							foreach (ClientConnection _cl in clientList)
+							/*foreach (ClientConnection _cl in clientList)
 							{
 								if (_cl != _client && _cl.position != null)
 								{
 									string text = string.Format("POS:{0}:{1}:{2}:{3}", _cl.id, _cl.position.x, _cl.position.y, _cl.position.z);
 									_client.writer.WriteLine(text);
 								}
-							}
+							}*/
 							break;
 						case "MYROT":
 							_client.rotation = new Quaternion(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]), 0f);
 							Debug.LogFormat("Received {0} ID rotation: {1}", _client.id, _client.rotation.ToString());
-							foreach (ClientConnection _cl in clientList)
+							/*foreach (ClientConnection _cl in clientList)
 							{
 								if (_cl != _client && _cl.rotation != null)
 								{
 									string text = string.Format("ROT:{0}:{1}:{2}:{3}", _cl.id, _cl.rotation.x, _cl.rotation.y, _cl.rotation.z);
 									_client.writer.WriteLine(text);
 								}
-							}
+							}*/
 							break;
 						default:
 							Debug.LogFormat("Get Wrong Command From Client: {0}", cmd);
@@ -167,7 +206,7 @@ public class Server : MonoBehaviour
 			};
 			newClient.writer.AutoFlush = true;
 			newClient.reader.BaseStream.ReadTimeout = 5000;
-			newClient.networkThread = new Thread(new ParameterizedThreadStart(PlayerNetTask));
+			newClient.networkThread = new Thread(new ParameterizedThreadStart(ReadNetworkData));
 			newClient.networkThread.Start(newClient);
 			clientList.Add(newClient);
 			id++;
