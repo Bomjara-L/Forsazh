@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -22,5 +23,6 @@ namespace Source
 		public bool spawned = false;
 		public GameObject vehicle;
 		public int id;
+		public Thread networkThread;
 	}
 }

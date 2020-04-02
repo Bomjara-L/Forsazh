@@ -139,6 +139,7 @@ public class Client : MonoBehaviour
 					}
 				}
 			}
+			Thread.Sleep(10);
 		}
 	}
 
