@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Source;
 using System;
+using UnityEngine.UI;
 
 public class Client : MonoBehaviour
 {
@@ -59,9 +60,15 @@ public class Client : MonoBehaviour
 					{
 						_client.vehicle = server.SpawnPlayerVehicle();
 						_client.vehicle.name = _client.id.ToString();
+						Transform playerNickObject = _client.vehicle.gameObject.transform.Find("PlayerNick");
+						if (playerNickObject != null)
+						{
+							playerNickObject.GetComponent<TextMesh>().text = _client.nickname;
+						}
+
 					}
 					_client.vehicle.transform.position = _client.position;
-					_client.vehicle.transform.rotation = _client.rotation;
+					_client.vehicle.transform.Rotate(new Vector3(_client.rotation.x, _client.rotation.y, _client.rotation.z));
 				}
 			}
 		}
@@ -122,7 +129,8 @@ public class Client : MonoBehaviour
 							ClientConnection newPlayer = new ClientConnection
 							{
 								id = int.Parse(command[1]),
-								spawned = true
+								spawned = true,
+								nickname = command[2]
 							};
 							clientList.Add(newPlayer);
 							break;
@@ -130,7 +138,8 @@ public class Client : MonoBehaviour
 							ClientConnection existsPlayer = new ClientConnection
 							{
 								id = int.Parse(command[1]),
-								spawned = true
+								spawned = true,
+								nickname = command[2]
 							};
 							clientList.Add(existsPlayer);
 							break;

@@ -68,11 +68,16 @@ public class Server : MonoBehaviour
 					if (_client.spawned && _client.vehicle == null) // Check that player is spawned and spawn him at the host if they not spawned
 					{
 						_client.vehicle = SpawnPlayerVehicle();
+						Transform playerNickObject = _client.vehicle.gameObject.transform.Find("PlayerNick");
+						if (playerNickObject != null)
+						{
+							playerNickObject.GetComponent<TextMesh>().text = _client.nickname;
+						}
 					}
 					if (_client.spawned) // update player vehicle position in the game if they spawned
 					{
 						_client.vehicle.transform.position = _client.position;
-						_client.vehicle.transform.rotation = _client.rotation;
+						_client.vehicle.transform.Rotate(new Vector3(_client.rotation.x, _client.rotation.y, _client.rotation.z));
 					}
 				}
 				else
@@ -159,26 +164,10 @@ public class Server : MonoBehaviour
 						case "MYPOS":
 							_client.position = new Vector3(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]));
 							Debug.LogFormat("Received {0} ID position: {1}", _client.id, _client.position.ToString());
-							/*foreach (ClientConnection _cl in clientList)
-							{
-								if (_cl != _client && _cl.position != null)
-								{
-									string text = string.Format("POS:{0}:{1}:{2}:{3}", _cl.id, _cl.position.x, _cl.position.y, _cl.position.z);
-									_client.writer.WriteLine(text);
-								}
-							}*/
 							break;
 						case "MYROT":
 							_client.rotation = new Quaternion(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]), 0f);
 							Debug.LogFormat("Received {0} ID rotation: {1}", _client.id, _client.rotation.ToString());
-							/*foreach (ClientConnection _cl in clientList)
-							{
-								if (_cl != _client && _cl.rotation != null)
-								{
-									string text = string.Format("ROT:{0}:{1}:{2}:{3}", _cl.id, _cl.rotation.x, _cl.rotation.y, _cl.rotation.z);
-									_client.writer.WriteLine(text);
-								}
-							}*/
 							break;
 						default:
 							Debug.LogFormat("Get Wrong Command From Client: {0}", cmd);
