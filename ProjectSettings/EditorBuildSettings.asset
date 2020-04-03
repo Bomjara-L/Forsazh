@@ -21,9 +21,6 @@ EditorBuildSettings:
     path: Assets/Win.unity
     guid: b748fad3fca74e14c85759fc42ff08e9
   - enabled: 1
-    path: Assets/MultiplayerMenu.unity
-    guid: a22f8f04958a96141ba448e563acd9c5
-  - enabled: 1
-    path: Assets/track 1 mp.unity
-    guid: 9d608ef6f74b06b45bedef6581819ca7
+    path: Assets/garage.unity
+    guid: e47b0614f1dead94ab02f7eed059d041
   m_configObjects: {}
