@@ -28,4 +28,9 @@ public class menu : MonoBehaviour
         Destroy(explame);
         Destroy(button);
     }
+
+    public void Multiplayer()
+    {
+        SceneManager.LoadScene(7);
+    }
 }
