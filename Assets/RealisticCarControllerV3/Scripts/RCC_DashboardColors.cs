@@ -46,7 +46,7 @@ public class RCC_DashboardColors : MonoBehaviour {
 
 		for (int i = 0; i < huds.Length; i++) {
 
-			huds[i].color = new Color(hudColor.r, hudColor.g, hudColor.b, huds[i].color.a);
+			//huds[i].color = new Color(hudColor.r, hudColor.g, hudColor.b, huds[i].color.a);
 
 		}
 	
