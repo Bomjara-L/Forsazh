@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class Timer : MonoBehaviour
 {
-    public float crug_time = 240f;
+    public float crug_time;
     public Text crug_time_text;
     private void Start()
     {
