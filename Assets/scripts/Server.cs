@@ -21,6 +21,8 @@ public class Server : MonoBehaviour
 
 	private Thread sendThread;
 
+	private LineSender sender;
+
 	public int port = 1488;
 	public int maxSlots = 32;
 
@@ -34,11 +36,11 @@ public class Server : MonoBehaviour
 	void Start()
 	{
 		client = GameObject.Find("Client").gameObject.GetComponent<Client>();
-		//ip = GetAddress();
 		if (!client.client.Connected)
 		{
 			ip = IPAddress.Any;
 			clientList = new List<ClientConnection>(maxSlots);
+			sender = new LineSender();
 			ClientConnection host = new ClientConnection
 			{
 				id = 9999,
@@ -77,13 +79,14 @@ public class Server : MonoBehaviour
 					if (_client.spawned) // update player vehicle position in the game if they spawned
 					{
 						_client.vehicle.transform.position = _client.position;
-						_client.vehicle.transform.Rotate(new Vector3(_client.rotation.x, _client.rotation.y, _client.rotation.z));
+						_client.vehicle.transform.eulerAngles = _client.rotation;
+
 					}
 				}
 				else
 				{
 					_client.position = _client.vehicle.transform.position;
-					_client.rotation = _client.vehicle.transform.rotation;
+					_client.rotation = _client.vehicle.transform.rotation.eulerAngles;
 				}
 			}
 			server.BeginAcceptTcpClient(HandleConnection, server);
@@ -109,9 +112,9 @@ public class Server : MonoBehaviour
 						if (_cl != client)
 						{
 							string text = string.Format("POS:{0}:{1}:{2}:{3}", _cl.id, _cl.position.x, _cl.position.y, _cl.position.z);
-							client.writer.WriteLine(text);
+							sender.SendMessage(client, text, ref clientList);
 							text = string.Format("ROT:{0}:{1}:{2}:{3}", _cl.id, _cl.rotation.x, _cl.rotation.y, _cl.rotation.z);
-							client.writer.WriteLine(text);
+							sender.SendMessage(client, text, ref clientList);
 						}
 					}
 				}
@@ -123,58 +126,67 @@ public class Server : MonoBehaviour
 	private void ReadNetworkData(object obj)
 	{
 		ClientConnection _client = (ClientConnection)obj;
-		while (true)
+		bool active = true;
+		while (active)
 		{
-			if (_client.stream.DataAvailable)
+			if (_client != null && _client.client.Connected)
 			{
-				string line = _client.reader.ReadLine();
-				string response = null;
-				string address = _client.client.Client.RemoteEndPoint.ToString();
-				Debug.LogFormat("Received line from {0}: {1}", address, line);
-				string[] command = line.Split(':');
-				string cmd = command[0].ToUpperInvariant();
-				if (response == null)
+				if (_client.stream.DataAvailable)
 				{
-					switch (cmd)
+					string line = _client.reader.ReadLine();
+					string response = null;
+					string address = _client.client.Client.RemoteEndPoint.ToString();
+					Debug.LogFormat("Received line from {0}: {1}", address, line);
+					string[] command = line.Split(':');
+					string cmd = command[0].ToUpperInvariant();
+					if (response == null)
 					{
-						case "CONNECTPLEASE":
-							_client.nickname = command[1];
-							string connectResponse = string.Format("GOTOME:{0}", _client.id);
-							_client.writer.WriteLine(connectResponse);
-							break;
-						case "LOADED":
-							_client.spawned = true;
-							foreach (ClientConnection _cl in clientList)
-							{
-								if (_cl != _client)
+						switch (cmd)
+						{
+							case "CONNECTPLEASE":
+								_client.nickname = command[1];
+								string connectResponse = string.Format("GOTOME:{0}", _client.id);
+								sender.SendMessage(_client, connectResponse, ref clientList);
+								break;
+							case "LOADED":
+								_client.spawned = true;
+								foreach (ClientConnection _cl in clientList)
 								{
-									string text = string.Format("NEWPLAYERSPAWN:{0}:{1}", _client.id, _client.nickname);
-									if (_cl.id != 9999)
+									if (_cl != _client)
 									{
-										_cl.writer.WriteLine(text);
-									}
-									if (_cl.spawned)
-									{
-										text = string.Format("EXISTSPLAYER:{0}:{1}", _cl.id, _cl.nickname);
-										_client.writer.WriteLine(text);
+										string text = string.Format("NEWPLAYERSPAWN:{0}:{1}", _client.id, _client.nickname);
+										if (_cl.id != 9999)
+										{
+											sender.SendMessage(_cl, text, ref clientList);
+										}
+										if (_cl.spawned)
+										{
+											text = string.Format("EXISTSPLAYER:{0}:{1}", _cl.id, _cl.nickname);
+											sender.SendMessage(_client, text, ref clientList);
+										}
 									}
 								}
-							}
-							break;
-						case "MYPOS":
-							_client.position = new Vector3(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]));
-							Debug.LogFormat("Received {0} ID position: {1}", _client.id, _client.position.ToString());
-							break;
-						case "MYROT":
-							_client.rotation = new Quaternion(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]), 0f);
-							Debug.LogFormat("Received {0} ID rotation: {1}", _client.id, _client.rotation.ToString());
-							break;
-						default:
-							Debug.LogFormat("Get Wrong Command From Client: {0}", cmd);
-							break;
+								break;
+							case "MYPOS":
+								_client.position = new Vector3(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]));
+								Debug.LogFormat("Received {0} ID position: {1}", _client.id, _client.position.ToString());
+								break;
+							case "MYROT":
+								_client.rotation = new Vector3(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]));
+								Debug.LogFormat("Received {0} ID rotation: {1}", _client.id, _client.rotation.ToString());
+								break;
+							default:
+								Debug.LogFormat("Get Wrong Command From Client: {0}", cmd);
+								break;
+						}
 					}
 				}
 			}
+			else
+			{
+				active = false;
+			}
+			Thread.Sleep(5);
 		}
 	}
 
@@ -200,8 +212,6 @@ public class Server : MonoBehaviour
 			clientList.Add(newClient);
 			id++;
 			Debug.Log("Player connected!");
-
-			
 		}
 	}
 
@@ -210,23 +220,4 @@ public class Server : MonoBehaviour
 		GameObject newVehicle = Instantiate(playerVehicle, defaultPosition, Quaternion.identity) as GameObject;
 		return newVehicle;
 	}
-
-	/*
-    private IPAddress GetAddress()
-    {
-        string address;
-        WebRequest request = WebRequest.Create("http://checkip.dyndns.org/");
-        using (WebResponse response = request.GetResponse())
-        {
-            using (StreamReader stream = new StreamReader(response.GetResponseStream()))
-            {
-                address = stream.ReadToEnd();
-            }
-            int first = address.IndexOf("Address: ") + 9;
-            int last = address.LastIndexOf("</body>");
-            address = address.Substring(first, last - first);
-            return IPAddress.Parse(address);
-        }
-    }
-    */
 }

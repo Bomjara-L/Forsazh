@@ -19,7 +19,7 @@ namespace Source
 		public StreamWriter writer;
 		public string nickname;
 		public Vector3 position;
-		public Quaternion rotation;
+		public Vector3 rotation;
 		public bool spawned = false;
 		public GameObject vehicle;
 		public int id;

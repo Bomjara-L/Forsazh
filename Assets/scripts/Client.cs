@@ -17,6 +17,7 @@ public class Client : MonoBehaviour
 	private StreamReader reader;
 	private StreamWriter writer;
 	private NetworkStream stream;
+	private LineSender sender;
 
 	private bool onServer = false;
 	private string id;
@@ -24,7 +25,7 @@ public class Client : MonoBehaviour
 
 	private GameObject myVehicle = null;
 	private Vector3 myPosition;
-	private Quaternion myRotation;
+	private Vector3 myRotation;
 
 	private GameObject playersObject;
 
@@ -53,7 +54,7 @@ public class Client : MonoBehaviour
 			else if (myVehicle != null)
 			{
 				myPosition = myVehicle.transform.position;
-				myRotation = myVehicle.transform.rotation;
+				myRotation = myVehicle.transform.rotation.eulerAngles;
 				foreach (ClientConnection _client in clientList)
 				{
 					if (_client.spawned && _client.vehicle == null)
@@ -68,7 +69,7 @@ public class Client : MonoBehaviour
 
 					}
 					_client.vehicle.transform.position = _client.position;
-					_client.vehicle.transform.Rotate(new Vector3(_client.rotation.x, _client.rotation.y, _client.rotation.z));
+					_client.vehicle.transform.eulerAngles = _client.rotation;
 				}
 			}
 		}
@@ -101,8 +102,8 @@ public class Client : MonoBehaviour
 			{
 				string posLine = string.Format("MYPOS:{0}:{1}:{2}:{3}", id, myPosition.x, myPosition.y, myPosition.z);
 				string rotLine = string.Format("MYROT:{0}:{1}:{2}:{3}", id, myRotation.x, myRotation.y, myRotation.z);
-				writer.WriteLine(posLine);
-				writer.WriteLine(rotLine);
+				sender.SendMessage(writer, posLine);
+				sender.SendMessage(writer, rotLine);
 			}
 			Thread.Sleep(20);
 		}
@@ -154,7 +155,7 @@ public class Client : MonoBehaviour
 							ClientConnection clRot = clientList.Find(c => c.id == int.Parse(command[1]));
 							if (clRot != null)
 							{
-								clRot.rotation = new Quaternion(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]), 0f);
+								clRot.rotation = new Vector3(float.Parse(command[2]), float.Parse(command[3]), float.Parse(command[4]));
 							}
 							break;
 						default:
