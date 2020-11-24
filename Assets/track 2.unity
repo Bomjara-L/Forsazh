@@ -5335,7 +5335,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 707083390}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.34}
+  m_LocalPosition: {x: 0, y: -0.401, z: -1.087}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2121752845}
@@ -16898,7 +16898,7 @@ MonoBehaviour:
   engineCoolRate: 1
   currentGear: 0
   totalGears: 6
-  gearShiftingDelay: 0.35
+  gearShiftingDelay: 0.3
   gearShiftingThreshold: 0.85
   clutchInertia: 0.25
   changingGear: 0
@@ -16963,9 +16963,9 @@ MonoBehaviour:
   TCSStrength: 1
   ESPThreshold: 0.25
   ESPStrength: 0.5
-  steerHelperLinearVelStrength: 0.1
-  steerHelperAngularVelStrength: 0.1
-  tractionHelperStrength: 0.1
+  steerHelperLinearVelStrength: 0.8
+  steerHelperAngularVelStrength: 0.8
+  tractionHelperStrength: 0.8
   ABSAct: 0
   TCSAct: 0
   ESPAct: 0
@@ -17094,7 +17094,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2121752843}
   serializedVersion: 2
-  m_Mass: 1650
+  m_Mass: 350
   m_Drag: 0.05
   m_AngularDrag: 0.1
   m_UseGravity: 1
