@@ -2,21 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
-public class hp : MonoBehaviour
+public class Hp : MonoBehaviour
 {
     public GameObject Car;
-    public int healthPoints = 3;
-
+    public bool alive = true;
     void Update()
     {
-
-        if (healthPoints <= 0)
+        if (alive == false)
         {
-            Destroy(Car);
-            Debug.Log("машина уничтожена");
             SceneManager.LoadScene(1);
         }
-
     }
 }

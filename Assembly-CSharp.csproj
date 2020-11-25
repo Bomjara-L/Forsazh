@@ -157,17 +157,14 @@
     <Compile Include="Assets\RealisticCarControllerV3\Standard Assets\Utility\TimedObjectDestructor.cs" />
     <Compile Include="Assets\RealisticCarControllerV3\Standard Assets\Utility\WaypointCircuit.cs" />
     <Compile Include="Assets\RealisticCarControllerV3\Standard Assets\Utility\WaypointProgressTracker.cs" />
-    <Compile Include="Assets\True_Horror\True_Crawler\MonsterMove.cs" />
+    <Compile Include="Assets\True_Horror\MonsterMove.cs" />
     <Compile Include="Assets\discoLight.cs" />
-    <Compile Include="Assets\scripts\CamControl.cs" />
     <Compile Include="Assets\scripts\Client.cs" />
     <Compile Include="Assets\scripts\ConnectButton.cs" />
     <Compile Include="Assets\scripts\CreateServer.cs" />
-    <Compile Include="Assets\scripts\DeadZone.cs" />
-    <Compile Include="Assets\scripts\Finish.cs" />
+    <Compile Include="Assets\scripts\Hp.cs" />
     <Compile Include="Assets\scripts\MultiplayerMenu.cs" />
     <Compile Include="Assets\scripts\Respawn.cs" />
-    <Compile Include="Assets\scripts\Rocks.cs" />
     <Compile Include="Assets\scripts\Server.cs" />
     <Compile Include="Assets\scripts\Timer.cs" />
     <Compile Include="Assets\scripts\asets\CarSwitcher.cs" />
@@ -175,11 +172,8 @@
     <Compile Include="Assets\scripts\asets\EasySuspension.cs" />
     <Compile Include="Assets\scripts\asets\GraphOverlay.cs" />
     <Compile Include="Assets\scripts\asets\WheelDrive.cs" />
-    <Compile Include="Assets\scripts\hp.cs" />
     <Compile Include="Assets\scripts\laps.cs" />
-    <Compile Include="Assets\scripts\loyRide.cs" />
     <Compile Include="Assets\scripts\menu.cs" />
-    <Compile Include="Assets\scripts\win.cs" />
     <Compile Include="Assets\source\ClientConnection.cs" />
     <Compile Include="Assets\source\LineSender.cs" />
     <None Include="Assets\Samples\Terrain Tools\0.1.0-preview\Terrain Assets\ThirdPartyNotices.txt" />
@@ -189,6 +183,7 @@
     <None Include="Assets\RealisticCarControllerV3\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
     <None Include="Assets\RealisticCarControllerV3\LICENSE - Read Me!.txt" />
     <None Include="Assets\RealisticCarControllerV3\Scripts\RCC_Skidmarks.shader" />
+    <None Include="Assets\Blood decal pack\readme.txt" />
     <None Include="Assets\asets()\Fonts\LICENSE.txt" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>E:/Games/Forsazh/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
