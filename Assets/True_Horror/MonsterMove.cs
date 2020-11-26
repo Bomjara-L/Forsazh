@@ -16,9 +16,9 @@ public class MonsterMove : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Player")
-        {
-            Player.GetComponent<Hp>().alive = false;
+        {   
             Debug.Log("монстр скушал машину");
+            Player.GetComponent<Hp>().alive = false;
         }
     }
 }
