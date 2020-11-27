@@ -64,6 +64,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\3D Skybox\Scripts\Player.cs" />
+    <Compile Include="Assets\3D Skybox\Scripts\Skybox3DCamera.cs" />
     <Compile Include="Assets\RealisticCarControllerV3\Scripts\RCC.cs" />
     <Compile Include="Assets\RealisticCarControllerV3\Scripts\RCC_AIBrakeZone.cs" />
     <Compile Include="Assets\RealisticCarControllerV3\Scripts\RCC_AIBrakeZonesContainer.cs" />
