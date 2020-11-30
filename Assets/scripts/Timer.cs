@@ -29,6 +29,6 @@ public class Timer : MonoBehaviour
     private void Update()
     {
         crug_time -= Time.deltaTime;
-        crug_time_text.text = crug_time >0 ? crug_time.ToString() : "0";
+        crug_time_text.text = crug_time >0 ? crug_time.ToString("0") : "0";
     }
 }
