@@ -27,10 +27,10 @@ public class Respawn : MonoBehaviour
                 Time.timeScale = 1f;
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+      /*  if (Input.GetKeyDown(KeyCode.Escape))
         {
             SceneManager.LoadScene(0);
         }
-
+      */
     }
 }
