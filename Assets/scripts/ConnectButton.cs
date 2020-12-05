@@ -14,11 +14,11 @@ public class ConnectButton : MonoBehaviour
     public GameObject uiManager;
     public GameObject clientObject;
 
-    private Client client;
+    private Client2 client;
     // Start is called before the first frame update
     void Start()
     {
-        client = clientObject.gameObject.GetComponent<Client>();
+        client = clientObject.gameObject.GetComponent<Client2>();
     }
 
     // Update is called once per frame
@@ -34,7 +34,7 @@ public class ConnectButton : MonoBehaviour
         string port = portEdit.text;
         if (!string.IsNullOrEmpty(name) && !string.IsNullOrWhiteSpace(name) && !string.IsNullOrWhiteSpace(ip) && !string.IsNullOrEmpty(ip) && !string.IsNullOrEmpty(port) && !string.IsNullOrWhiteSpace(port))
         {
-            bool connected = client.ConnectToServer(name, ip, port);
+            bool connected = client.Connect(name, IPAddress.Parse(ip), int.Parse(port));
         }
     }
         
